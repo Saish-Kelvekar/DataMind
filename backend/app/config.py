@@ -1,5 +1,6 @@
 """Application configuration and environment settings for DataMind backend."""
 
+import os
 from functools import lru_cache
 from typing import List
 from pydantic import Field, field_validator
@@ -18,7 +19,7 @@ class Settings(BaseSettings):
 
     # Hosted Google Gemma Configuration
     gemma_api_key: str = Field(default="", alias="GEMMA_API_KEY")
-    gemma_model: str = Field(default="gemma-2-9b-it", alias="GEMMA_MODEL")
+    gemma_model: str = Field(default="gemma-4-26b-a4b-it", alias="GEMMA_MODEL")
 
     # Snowflake Credentials & Context
     snowflake_account: str = Field(default="", alias="SNOWFLAKE_ACCOUNT")
@@ -39,6 +40,13 @@ class Settings(BaseSettings):
         "ORDERS",
         "LINEITEM",
     ]
+
+    @property
+    def effective_gemma_api_key(self) -> str:
+        """Return GEMMA_API_KEY if provided, falling back to GOOGLE_API_KEY if present."""
+        if self.gemma_api_key:
+            return self.gemma_api_key
+        return os.getenv("GOOGLE_API_KEY", "")
 
     @property
     def cors_origins(self) -> List[str]:

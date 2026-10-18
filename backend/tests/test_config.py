@@ -8,7 +8,7 @@ from app.config import Settings
 def test_default_settings():
     """Verify default configuration values."""
     settings = Settings()
-    assert settings.gemma_model == "gemma-2-9b-it"
+    assert settings.gemma_model == "gemma-4-26b-a4b-it"
     assert settings.snowflake_database == "SNOWFLAKE_SAMPLE_DATA"
     assert settings.snowflake_schema == "TPCH_SF1"
     assert settings.frontend_origin == "http://localhost:5173"
