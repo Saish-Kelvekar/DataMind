@@ -33,12 +33,28 @@ def test_ask_request_too_long():
         AskRequest(question="A" * 501)
 
 
-def test_ask_endpoint_valid_request():
+from unittest.mock import patch
+
+
+@patch("app.main.answer_service.answer_question")
+def test_ask_endpoint_valid_request(mock_answer):
     """Valid question sent to /api/ask returns 200 with AskResponse schema."""
+    mock_answer.return_value = AskResponse(
+        status="success",
+        question="What are the five most expensive orders?",
+        sql="SELECT O_ORDERKEY, O_TOTALPRICE FROM ORDERS ORDER BY O_TOTALPRICE DESC LIMIT 5",
+        columns=["O_ORDERKEY", "O_TOTALPRICE"],
+        rows=[[101, 5000.0]],
+        explanation="Finds the top 5 orders by price.",
+        assumptions=[],
+        row_count=1,
+        elapsed_ms=100,
+        query_id="sfqid-1234",
+    )
     response = client.post("/api/ask", json={"question": "What are the five most expensive orders?"})
     assert response.status_code == 200
     data = response.json()
-    assert data["status"] in ["success", "clarification_required", "unsupported", "error"]
+    assert data["status"] == "success"
     assert data["question"] == "What are the five most expensive orders?"
     assert "columns" in data
     assert "rows" in data
