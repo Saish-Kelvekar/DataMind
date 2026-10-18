@@ -4,11 +4,6 @@
 !.env.example
 *.local
 
-# Internal Planning & Playbook Docs (Do not commit to public remote)
-DataMind_PRD_and_Antigravity_Implementation_Playbook.docx
-DataMind_SHARED_README.md
-*.docx
-
 # Dependencies
 node_modules/
 dist/
