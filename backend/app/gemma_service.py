@@ -13,6 +13,7 @@ import httpx
 from pydantic import BaseModel, Field
 
 from app.config import get_settings
+from app.schema_service import schema_service
 
 logger = logging.getLogger(__name__)
 
@@ -174,13 +175,16 @@ class GemmaService:
             f"Gemma provider error (HTTP {response.status_code}): {response.text[:200]}"
         )
 
-    def propose_sql(self, question: str, schema_context: str) -> GemmaSQLProposal:
+    def propose_sql(
+        self, question: str, schema_context: Optional[str] = None
+    ) -> GemmaSQLProposal:
         """Prompt Gemma with verified schema context to propose a structured SQL query."""
+        context = schema_context or schema_service.get_prompt_schema_context()
         prompt = f"""You are DataMind, an expert analytics AI assistant.
 Your task is to translate an analytical question into a safe, standard Snowflake SQL query based ONLY on the verified schema provided below.
 
 VERIFIED SCHEMA:
-{schema_context}
+{context}
 
 RULES:
 1. Propose ONLY a single read-only SELECT query.
