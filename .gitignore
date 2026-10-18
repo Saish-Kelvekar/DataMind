@@ -1,31 +1,17 @@
-<<<<<<< HEAD
-# Environment and secrets
-.env
-*.env
-!.env.example
-*.local
-
-# Dependencies
-node_modules/
-dist/
-
-# Python virtual environments & bytecode
-.venv/
-venv/
-__pycache__/
-*.pyc
-
-# IDE & OS files
-.DS_Store
-Thumbs.db
-=======
 # Environment & Secrets
 .env
 .env.*
+*.env
 !.env.example
 *.pem
 *.key
 *.cert
+*.local
+
+# Internal Planning & Playbook Docs (Do not commit to public remote)
+DataMind_PRD_and_Antigravity_Implementation_Playbook.docx
+DataMind_SHARED_README.md
+*.docx
 
 # Python & Virtual Environments
 .venv/
@@ -50,6 +36,5 @@ frontend/dist/
 .DS_Store
 Thumbs.db
 *.log
->>>>>>> origin/feature/backend-ai-snowflake
 .vscode/
 .idea/
