@@ -61,10 +61,11 @@ export async function askDataMind(question, options = {}) {
     return simulateFixtureResponse(trimmed)
   }
 
+  let timeoutId = null
   try {
     const controller = new AbortController()
     // 35 second timeout to accommodate LLM reasoning + Snowflake execution
-    const timeoutId = setTimeout(() => controller.abort(), 35000)
+    timeoutId = setTimeout(() => controller.abort(), 35000)
 
     const response = await fetch(`${API_BASE_URL}/api/ask`, {
       method: 'POST',
@@ -75,14 +76,37 @@ export async function askDataMind(question, options = {}) {
       body: JSON.stringify({ question: trimmed }),
       signal: controller.signal
     })
-    clearTimeout(timeoutId)
 
     const data = await response.json().catch(() => null)
 
     // Successful HTTP response with parsed JSON
     if (response.ok && data) {
       return {
-        ...data,
+        status: data.status || 'success',
+        question: data.question || trimmed,
+        sql: data.sql || null,
+        columns: Array.isArray(data.columns) ? data.columns : [],
+        rows: Array.isArray(data.rows) ? data.rows : [],
+        explanation: data.explanation || '',
+        assumptions: Array.isArray(data.assumptions) ? data.assumptions : [],
+        row_count: typeof data.row_count === 'number' 
+          ? data.row_count 
+          : (Array.isArray(data.rows) ? data.rows.length : 0),
+        elapsed_ms: data.elapsed_ms,
+        query_id: data.query_id,
+        is_fixture: false
+      }
+    }
+
+    // Backend returned 200 OK but body could not be parsed as JSON
+    if (response.ok && !data) {
+      return {
+        status: 'error',
+        message: 'Backend returned an empty or invalid JSON response payload.',
+        sql: null,
+        columns: [],
+        rows: [],
+        assumptions: [],
         is_fixture: false
       }
     }
@@ -102,9 +126,9 @@ export async function askDataMind(question, options = {}) {
         status: data.status || 'error',
         message: message || `Server returned error (HTTP ${response.status})`,
         sql: data.sql || null,
-        columns: data.columns || [],
-        rows: data.rows || [],
-        assumptions: data.assumptions || [],
+        columns: Array.isArray(data.columns) ? data.columns : [],
+        rows: Array.isArray(data.rows) ? data.rows : [],
+        assumptions: Array.isArray(data.assumptions) ? data.assumptions : [],
         elapsed_ms: data.elapsed_ms,
         query_id: data.query_id,
         is_fixture: false
@@ -117,6 +141,7 @@ export async function askDataMind(question, options = {}) {
       sql: null,
       columns: [],
       rows: [],
+      assumptions: [],
       is_fixture: false
     }
   } catch (err) {
@@ -143,7 +168,12 @@ export async function askDataMind(question, options = {}) {
       sql: null,
       columns: [],
       rows: [],
+      assumptions: [],
       is_fixture: false
+    }
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
     }
   }
 }

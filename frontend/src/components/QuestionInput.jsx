@@ -24,6 +24,11 @@ export default function QuestionInput({
       if (question.trim() && !isLoading && !disabled) {
         onSubmit(question)
       }
+    } else if (e.key === 'Escape') {
+      if (question) {
+        e.preventDefault()
+        setQuestion('')
+      }
     }
   }
 
@@ -38,18 +43,21 @@ export default function QuestionInput({
     <div className="relative rounded-2xl bg-white border border-slate-200 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10">
       <div className="p-4 sm:p-5">
         <div className="flex items-start gap-3">
-          <div className="mt-1 text-slate-400">
-            <Search className="w-5 h-5 text-slate-400" />
-          </div>
+          <label htmlFor="datamind-question-input" className="mt-1 text-slate-400 cursor-pointer">
+            <Search className="w-5 h-5 text-slate-400" aria-hidden="true" />
+          </label>
 
           <div className="flex-1 relative">
             <textarea
+              id="datamind-question-input"
+              name="datamind-question"
               ref={textareaRef}
               rows={2}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isLoading || disabled}
+              aria-label="Ask an analytical question about TPC-H"
               placeholder="Ask an analytical question about TPC-H orders, customers, or line items... (e.g. 'What are the five most expensive orders?')"
               className="w-full bg-transparent text-slate-900 placeholder-slate-400 text-base sm:text-lg resize-none outline-none focus:outline-none font-normal leading-relaxed tracking-tight"
             />
