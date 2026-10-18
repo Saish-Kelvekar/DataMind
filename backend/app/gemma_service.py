@@ -8,6 +8,7 @@ parsing structured SQL proposals.
 import json
 import logging
 import re
+import time as time_module
 from typing import Any, Dict, List, Literal, Optional
 import httpx
 from pydantic import BaseModel, Field
@@ -144,36 +145,49 @@ class GemmaService:
         }
 
         call_timeout = timeout or self.timeout_seconds
+        max_retries = 2
 
-        try:
-            with httpx.Client(timeout=call_timeout) as client:
-                response = client.post(endpoint, json=payload)
-        except httpx.TimeoutException as exc:
-            raise GemmaTimeoutError(
-                f"Gemma request timed out after {call_timeout}s"
-            ) from exc
-        except httpx.RequestError as exc:
-            raise GemmaError(f"Network error connecting to Gemma provider: {exc}") from exc
+        for attempt in range(max_retries + 1):
+            try:
+                with httpx.Client(timeout=call_timeout) as client:
+                    response = client.post(endpoint, json=payload)
+            except httpx.TimeoutException as exc:
+                if attempt < max_retries:
+                    time_module.sleep(1.0)
+                    continue
+                raise GemmaTimeoutError(
+                    f"Gemma request timed out after {call_timeout}s"
+                ) from exc
+            except httpx.RequestError as exc:
+                if attempt < max_retries:
+                    time_module.sleep(1.0)
+                    continue
+                raise GemmaError(f"Network error connecting to Gemma provider: {exc}") from exc
 
-        if response.status_code == 200:
-            return self._extract_text_from_response(response.json())
+            if response.status_code == 200:
+                return self._extract_text_from_response(response.json())
 
-        if response.status_code in (401, 403):
-            raise GemmaAuthError(
-                f"Gemma authentication failed (HTTP {response.status_code}): Invalid or unauthorized API key"
+            # Retry transient server errors or rate spikes
+            if response.status_code in (500, 503, 429) and attempt < max_retries:
+                time_module.sleep(1.5 * (attempt + 1))
+                continue
+
+            if response.status_code in (401, 403):
+                raise GemmaAuthError(
+                    f"Gemma authentication failed (HTTP {response.status_code}): Invalid or unauthorized API key"
+                )
+            if response.status_code == 404:
+                raise GemmaModelNotFoundError(
+                    f"Hosted Gemma model '{self.model}' not found or unsupported by provider"
+                )
+            if response.status_code == 429:
+                raise GemmaRateLimitError(
+                    "Gemma API rate limit or quota exceeded. Please retry in a few moments."
+                )
+
+            raise GemmaError(
+                f"Gemma provider error (HTTP {response.status_code}): {response.text[:200]}"
             )
-        if response.status_code == 404:
-            raise GemmaModelNotFoundError(
-                f"Hosted Gemma model '{self.model}' not found or unsupported by provider"
-            )
-        if response.status_code == 429:
-            raise GemmaRateLimitError(
-                "Gemma API rate limit or quota exceeded. Please retry in a few moments."
-            )
-
-        raise GemmaError(
-            f"Gemma provider error (HTTP {response.status_code}): {response.text[:200]}"
-        )
 
     def propose_sql(
         self, question: str, schema_context: Optional[str] = None

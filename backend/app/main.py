@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
+from app.answer_service import answer_service
 from app.config import get_settings
 from app.schemas import AskRequest, AskResponse, HealthResponse
 
@@ -40,17 +41,5 @@ async def health_check() -> HealthResponse:
     tags=["Query"],
 )
 async def ask_question(request: AskRequest) -> AskResponse:
-    """Accept natural language question, validate input, and return response schema.
-
-    In Phase A1, input validation and schemas are enforced. Real Gemma SQL generation
-    and Snowflake execution are wired in Phase A2 through A5.
-    """
-    return AskResponse(
-        status="error",
-        question=request.question,
-        message="Backend foundation active. Gemma and Snowflake integrations are scheduled for Phase A2-A5.",
-        sql=None,
-        columns=[],
-        rows=[],
-        assumptions=[],
-    )
+    """Accept natural language question, process via Gemma and Snowflake, and return response."""
+    return answer_service.answer_question(request.question)
