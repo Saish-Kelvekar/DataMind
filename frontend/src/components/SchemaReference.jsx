@@ -26,41 +26,41 @@ export default function SchemaReference() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className="rounded-xl bg-slate-900/60 border border-slate-800 text-xs overflow-hidden">
+    <div className="rounded-2xl bg-white border border-slate-200/90 text-xs overflow-hidden shadow-xs">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-2.5 flex items-center justify-between text-left text-slate-400 hover:text-slate-200 transition-colors cursor-pointer bg-slate-900/80"
+        className="w-full px-4 py-3 flex items-center justify-between text-left text-slate-700 hover:text-slate-900 transition-colors cursor-pointer bg-white"
       >
         <div className="flex items-center gap-2">
-          <Database className="w-3.5 h-3.5 text-sky-400" />
-          <span className="font-medium text-slate-300">Available Dataset Schema Reference</span>
-          <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">(SNOWFLAKE_SAMPLE_DATA.TPCH_SF1)</span>
+          <Database className="w-4 h-4 text-sky-600" />
+          <span className="font-semibold text-slate-800">Available Dataset Schema Reference</span>
+          <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">(SNOWFLAKE_SAMPLE_DATA.TPCH_SF1)</span>
         </div>
-        <div className="flex items-center gap-1.5 text-slate-500">
+        <div className="flex items-center gap-1.5 text-slate-500 font-medium">
           <span>{isOpen ? 'Collapse' : 'Inspect 3 Tables'}</span>
           {isOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </div>
       </button>
 
       {isOpen && (
-        <div className="p-4 border-t border-slate-800 bg-slate-950/40 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="p-4 border-t border-slate-100 bg-slate-50/70 grid grid-cols-1 md:grid-cols-3 gap-3">
           {TABLES.map((t, idx) => (
-            <div key={idx} className="p-3 rounded-lg bg-slate-900/80 border border-slate-800 space-y-2">
-              <div className="flex items-center gap-1.5 font-semibold text-slate-200">
-                <Table className="w-3.5 h-3.5 text-blue-400" />
+            <div key={idx} className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+              <div className="flex items-center gap-1.5 font-semibold text-slate-900">
+                <Table className="w-3.5 h-3.5 text-blue-600" />
                 <span>{t.name}</span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-snug">
+              <p className="text-[11px] text-slate-500 leading-snug">
                 {t.description}
               </p>
-              <div className="pt-1.5 border-t border-slate-800/80">
-                <span className="text-[10px] uppercase font-mono text-slate-500 block mb-1">Key Columns:</span>
+              <div className="pt-2 border-t border-slate-100">
+                <span className="text-[10px] uppercase font-mono text-slate-400 font-semibold block mb-1">Key Columns:</span>
                 <div className="flex flex-wrap gap-1">
                   {t.sampleColumns.map((col, cIdx) => (
                     <span
                       key={cIdx}
-                      className="px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-mono text-[10px]"
+                      className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-mono text-[10px] border border-slate-200/60"
                     >
                       {col}
                     </span>

@@ -43,10 +43,10 @@ export default function ExampleChips({ onSelectExample, disabled }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs text-slate-400">
-        <span className="font-medium uppercase tracking-wider text-[11px] text-slate-400">
+        <span className="font-semibold uppercase tracking-wider text-[11px] text-slate-500">
           Example Analytical Questions
         </span>
-        <span className="text-slate-500 text-[11px]">Click any chip to populate query</span>
+        <span className="text-slate-400 text-[11px]">Click any chip to populate query</span>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -58,11 +58,11 @@ export default function ExampleChips({ onSelectExample, disabled }) {
               type="button"
               disabled={disabled}
               onClick={() => onSelectExample(item.text)}
-              className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 hover:text-white transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-blue-200 text-xs font-medium text-slate-600 hover:text-blue-600 transition-all cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Icon className="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-300 shrink-0" />
+              <Icon className="w-3.5 h-3.5 text-blue-500 shrink-0" />
               <span>{item.text}</span>
-              <ArrowUpRight className="w-3 h-3 text-slate-500 group-hover:text-slate-300 opacity-60 group-hover:opacity-100 transition-opacity" />
+              <ArrowUpRight className="w-3 h-3 text-slate-400 group-hover:text-blue-500 opacity-60 group-hover:opacity-100 transition-opacity" />
             </button>
           )
         })}
