@@ -3,36 +3,40 @@
 import os
 from functools import lru_cache
 from typing import List
+from pathlib import Path
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = BACKEND_DIR.parent
 
 
 class Settings(BaseSettings):
     """Configuration loaded from environment variables with safe defaults."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(str(BACKEND_DIR / ".env"), str(ROOT_DIR / ".env"), ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
-        populate_by_name=True,
+        case_sensitive=False,
     )
 
     # Hosted Google Gemma Configuration
-    gemma_api_key: str = Field(default="", alias="GEMMA_API_KEY")
-    gemma_model: str = Field(default="gemma-4-26b-a4b-it", alias="GEMMA_MODEL")
+    gemma_api_key: str = ""
+    gemma_model: str = "gemma-4-26b-a4b-it"
 
     # Snowflake Credentials & Context
-    snowflake_account: str = Field(default="", alias="SNOWFLAKE_ACCOUNT")
-    snowflake_user: str = Field(default="", alias="SNOWFLAKE_USER")
-    snowflake_password: str = Field(default="", alias="SNOWFLAKE_PASSWORD")
-    snowflake_warehouse: str = Field(default="", alias="SNOWFLAKE_WAREHOUSE")
-    snowflake_database: str = Field(default="SNOWFLAKE_SAMPLE_DATA", alias="SNOWFLAKE_DATABASE")
-    snowflake_schema: str = Field(default="TPCH_SF1", alias="SNOWFLAKE_SCHEMA")
+    snowflake_account: str = ""
+    snowflake_user: str = ""
+    snowflake_password: str = ""
+    snowflake_warehouse: str = "COMPUTE_WH"
+    snowflake_database: str = "SNOWFLAKE_SAMPLE_DATA"
+    snowflake_schema: str = "TPCH_SF1"
 
     # App & Security Settings
-    frontend_origin: str = Field(default="http://localhost:5173", alias="FRONTEND_ORIGIN")
-    query_timeout_seconds: int = Field(default=30, alias="QUERY_TIMEOUT_SECONDS", ge=1, le=120)
-    max_result_rows: int = Field(default=100, alias="MAX_RESULT_ROWS", ge=1, le=1000)
+    frontend_origin: str = "http://localhost:5173"
+    query_timeout_seconds: int = Field(default=30, ge=1, le=120)
+    max_result_rows: int = Field(default=100, ge=1, le=1000)
 
     # Allowed Snowflake tables scope (strictly restricted to approved TPC-H tables)
     allowed_tables: List[str] = [
